@@ -12,9 +12,12 @@ class RenderParticle
 
 		Physics::MyVector Color;
 
+		Physics::MyVector Scale;
+
 		RenderParticle(Physics::P6Particle* p, Model3D* obj) : PhysicsParticle(p), RenderObject(obj) {
 
 			Color = Physics::MyVector(1, 1, 1);
+			Scale = Physics::MyVector(1, 1, 1);
 		};
 
 		RenderParticle(Physics::P6Particle* p, Model3D* obj, Physics::MyVector c) : PhysicsParticle(p), RenderObject(obj), Color(c) {};

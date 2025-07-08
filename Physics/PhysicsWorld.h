@@ -22,7 +22,9 @@ namespace Physics {
 
 		void GenerateContact();
 
-		ContactResolver contactResolver = ContactResolver(20); 
+		void GetOverlaps();
+
+		ContactResolver contactResolver = ContactResolver(20);
 
 	public:
 
@@ -30,7 +32,7 @@ namespace Physics {
 
 		std::list<ParticleLink*> links;
 
-		void addContact(P6Particle* p1, P6Particle* p2, float resitution, MyVector contactNormal);
+		void addContact(P6Particle* p1, P6Particle* p2, float resitution, MyVector contactNormal, float depth);
 
 		ForceRegistry forceRegistry;
 

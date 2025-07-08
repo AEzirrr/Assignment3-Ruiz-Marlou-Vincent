@@ -202,7 +202,7 @@ int main(void) {
         "", // texture
         glm::vec3(0, 0, 0), // Spawn pos
         glm::vec3(0, 0, 0), //Rotation
-        glm::vec3(0.5f, 0.5f, 0.5f), // Scale
+        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
     );
 
@@ -216,7 +216,7 @@ int main(void) {
         shaderProg
     );
 
-    /*// Load sphere
+    // Load sphere
     Model3D sphereObject3(
         "3D/sphere.obj", // 3D model
         "", // texture
@@ -234,7 +234,17 @@ int main(void) {
         glm::vec3(0, 0, 0), //Rotation
         glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
         shaderProg
-    );*/
+    );
+
+    // Load sphere
+    Model3D sphereObject5(
+        "3D/sphere.obj", // 3D model
+        "", // texture
+        glm::vec3(0, 0, 0), // Spawn pos
+        glm::vec3(0, 0, 0), //Rotation
+        glm::vec3(scaleVal, scaleVal, scaleVal), // Scale
+        shaderProg
+    );
 
 
 	std::list<RenderParticle*> renderParticles;
@@ -242,74 +252,67 @@ int main(void) {
     //Add the particles
 	Physics::PhysicsWorld physicsWorld = Physics::PhysicsWorld();
 
-	/*Physics::P6Particle particle = Physics::P6Particle();
-	particle.position = Physics::MyVector(-10, 0, 0);
-	//particle.velocity = Physics::MyVector(10, 0, 0);
-    //particle.acceleration = Physics::MyVector(4, 0, 0);
-
-	particle.mass = 1.0f;
-    particle.AddForce(Physics::MyVector(800.0f, 200.0f, 0.0f));
-	Physics::DragForceGenerator drag = Physics::DragForceGenerator(0.14f, 0.1);
-
-	physicsWorld.forceRegistry.Add(&particle, &drag); // Add the drag force generator to the particle
-
-	particle.damping = 1.0f; 
-	physicsWorld.AddParticle(&particle);
-	RenderParticle rp1 = RenderParticle(&particle, &sphereObject, Physics::MyVector(0.0f, 1.0f, 0.0f));
-	renderParticles.push_back(&rp1);*/
-
-    /*Physics::P6Particle particle2 = Physics::P6Particle();
-    particle2.position = Physics::MyVector(8, -8, 0);
-    particle2.velocity = Physics::MyVector(-1, 1, 0);
-    particle2.acceleration = Physics::MyVector(-4, 4, 0);
-	physicsWorld.AddParticle(&particle2);
-    sphereObject2.color(glm::vec3(0.0f, 1.0f, 0.0f));
-	RenderParticle rp2 = RenderParticle(&particle2, &sphereObject2, Physics::MyVector(0.0f, 1.0f, 0.0f));
-	renderParticles.push_back(&rp2);
-
-    Physics::P6Particle particle3 = Physics::P6Particle();
-    particle3.position = Physics::MyVector(-8, 8, 0);
-    particle3.velocity = Physics::MyVector(1, -1, 0);
-    particle3.acceleration = Physics::MyVector(4, -4, 0);
-	physicsWorld.AddParticle(&particle3);
-    sphereObject3.color(glm::vec3(0.0f, 1.0f, 0.0f));
-	RenderParticle rp3 = RenderParticle(&particle3, &sphereObject3, Physics::MyVector(0.0f, 1.0f, 0.0f));
-	renderParticles.push_back(&rp3);
-
-    Physics::P6Particle particle4 = Physics::P6Particle();
-    particle4.position = Physics::MyVector(-8, -8, 0);
-    particle4.velocity = Physics::MyVector(1, 1, 0);
-    particle4.acceleration = Physics::MyVector(4, 4, 0);
-	physicsWorld.AddParticle(&particle4);
-    sphereObject4.color(glm::vec3(0.0f, 1.0f, 0.0f));
-	RenderParticle rp4 = RenderParticle(&particle4, &sphereObject4, Physics::MyVector(0.0f, 1.0f, 0.0f));
-	renderParticles.push_back(&rp4);*/
-
 	Physics::P6Particle p1 = Physics::P6Particle();
-	p1.position = Physics::MyVector(-2, 0, 0);
+	p1.position = Physics::MyVector(-4, 0, 0);
 	p1.mass = 1.0f;
+	p1.radius = 0.5f; // Set radius for the particle
 	physicsWorld.AddParticle(&p1);
-    RenderParticle rp1 = RenderParticle(&p1, &sphereObject, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    RenderParticle rp1 = RenderParticle(&p1, &sphereObject, Physics::MyVector(1.0f, 0.0f, 0.0f));
+	rp1.Scale = Physics::MyVector(p1.radius, p1.radius, p1.radius);
     renderParticles.push_back(&rp1);
     
     Physics::P6Particle p2 = Physics::P6Particle();
-	p2.position = Physics::MyVector(2.0f, 0, 0);
+	p2.position = Physics::MyVector(-2.0f, 0, 0);
 	p2.mass = 1.0f;
+	p2.radius = 0.5f; // Set radius for the particle
 	physicsWorld.AddParticle(&p2);
-	RenderParticle rp2 = RenderParticle(&p2, &sphereObject2, Physics::MyVector(1.0f, 0.0f, 0.0f));
+	RenderParticle rp2 = RenderParticle(&p2, &sphereObject2, Physics::MyVector(0.0f, 0.0f, 1.0f));
+	rp2.Scale = Physics::MyVector(p2.radius, p2.radius, p2.radius);
 	renderParticles.push_back(&rp2);
 
-    //I set the bungee rest length to 3.0f just so they are on the same level when stopping
-	//because due to mass, the particle is suspended and stretches the bungee a lot lower
-    //////////Bungee//////////
-    Physics::Bungee aBungee = Physics::Bungee(Physics::MyVector(-2, 0, 0), 5.0f, 3.0f);
-	aBungee.damping = 0.1f; // Set damping for the bungee
-    physicsWorld.forceRegistry.Add(&p1, &aBungee);
-    //////////Bungee TEST//////////
+    Physics::P6Particle p3 = Physics::P6Particle();
+    p3.position = Physics::MyVector(0.0f, 0, 0);
+    p3.mass = 1.0f;
+    p3.radius = 0.5f; // Set radius for the particle
+    physicsWorld.AddParticle(&p3);
+    RenderParticle rp3 = RenderParticle(&p3, &sphereObject3, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    rp3.Scale = Physics::MyVector(p3.radius, p3.radius, p3.radius);
+    renderParticles.push_back(&rp3);
+
+    Physics::P6Particle p4 = Physics::P6Particle();
+    p4.position = Physics::MyVector(2, 0, 0);
+    p4.mass = 1.0f;
+    p4.radius = 0.5f; // Set radius for the particle
+    physicsWorld.AddParticle(&p4);
+    RenderParticle rp4 = RenderParticle(&p4, &sphereObject4, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    rp4.Scale = Physics::MyVector(p4.radius, p4.radius, p4.radius);
+    renderParticles.push_back(&rp4);
+
+    Physics::P6Particle p5 = Physics::P6Particle();
+    p5.position = Physics::MyVector(4, 0, 0);
+    p5.mass = 1.0f;
+    p5.radius = 0.5f; // Set radius for the particle
+    physicsWorld.AddParticle(&p5);
+    RenderParticle rp5 = RenderParticle(&p5, &sphereObject5, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    rp5.Scale = Physics::MyVector(p5.radius, p5.radius, p5.radius);
+    renderParticles.push_back(&rp5);
+
 
     //////////CHAIN//////////
-    Physics::Chain aChain = Physics::Chain(Physics::MyVector(2, 0, 0), 5.0f, 5.0f);
-    physicsWorld.forceRegistry.Add(&p2, &aChain);
+    Physics::Chain aChain = Physics::Chain(p1.position, 5.0f, 6.0f);
+    physicsWorld.forceRegistry.Add(&p1, &aChain);
+
+    Physics::Chain aChain2 = Physics::Chain(p2.position, 5.0f, 6.0f);
+    physicsWorld.forceRegistry.Add(&p2, &aChain2);
+
+    Physics::Chain aChain3 = Physics::Chain(p3.position, 5.0f, 6.0f);
+    physicsWorld.forceRegistry.Add(&p3, &aChain3);
+
+    Physics::Chain aChain4 = Physics::Chain(p4.position, 5.0f, 6.0f);
+    physicsWorld.forceRegistry.Add(&p4, &aChain4);
+
+    Physics::Chain aChain5 = Physics::Chain(p5.position, 5.0f, 6.0f);
+    physicsWorld.forceRegistry.Add(&p5, &aChain5);
     //////////CHAIN//////////
 
    
@@ -384,7 +387,7 @@ int main(void) {
 
         // Apply force to the chain after 5 seconds (to simulate chain movement)
         if (!forceApplied && elapsedTime >= 5.0f) {
-            p2.AddForce(Physics::MyVector(Physics::MyVector(0.25f, 0.25f, 0.0f) * 1000));
+            p1.AddForce(Physics::MyVector(Physics::MyVector(-0.7f, 0.0f, 0.0f) * 1000));
             forceApplied = true;
             std::cout << "Force applied to chain!" << std::endl;
         }
@@ -443,8 +446,11 @@ int main(void) {
         // draw the bungee and chain lines
         {
             glm::vec3 lineColor(1.0f, 1.0f, 1.0f);
-            DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aBungee.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aChain.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aChain.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aChain2.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject3.position * 0.1f, ToGlmVec3(aChain3.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject4.position * 0.1f, ToGlmVec3(aChain4.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject5.position * 0.1f, ToGlmVec3(aChain5.anchorPoint) * 0.1f, lineColor);
         }
 
 

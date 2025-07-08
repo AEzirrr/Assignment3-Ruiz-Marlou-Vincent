@@ -25,6 +25,9 @@ namespace Physics {
 
         bool IsDestroyed();
 
+		float radius = 1.0f;
+
+        float restitution = 0.9f;
 
 		float damping = 0.9f; // Approximate drag
 

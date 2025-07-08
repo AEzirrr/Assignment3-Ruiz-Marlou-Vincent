@@ -16,6 +16,10 @@ namespace Physics {
         return std::sqrt(x * x + y * y + z * z);
     }
 
+    float MyVector::SqMagnitude() {
+        return (x * x) + (y * y) + (z * z);
+    }
+
     MyVector MyVector::Normalize() const {
         float mag = Magnitude();
         if (mag == 0.0f) {
