@@ -129,6 +129,23 @@ bool AtCenter(const Physics::P6Particle& particle, float epsilon = 0.1f) {
 }
 
 int main(void) {
+    float cableLen = 0.0f;
+    float particleGap = 0.0f;
+    float particleRadius = 0.0f;
+    float gravityStrength = 0.0f;
+    float applyForce = 0.0f;
+
+    std::cout << "Enter Cable Length: ";
+    std::cin >> cableLen;
+    std::cout << "Enter Particle Gap: ";
+    std::cin >> particleGap;
+    std::cout << "Enter Particle Radius: ";
+    std::cin >> particleRadius;
+    std::cout << "Enter Gravity Strength (Y-axis, negative for downward): ";
+    std::cin >> gravityStrength;
+    std::cout << "Enter Force to Apply to Leftmost Particle: ";
+    std::cin >> applyForce;
+
     GLFWwindow* window;
 
     if (!glfwInit())
@@ -248,72 +265,72 @@ int main(void) {
 
 
 	std::list<RenderParticle*> renderParticles;
-
+    // --- PARTICLE SETUP USING USER INPUT ---
     //Add the particles
 	Physics::PhysicsWorld physicsWorld = Physics::PhysicsWorld();
 
-	Physics::P6Particle p1 = Physics::P6Particle();
-	p1.position = Physics::MyVector(-4, 0, 0);
-	p1.mass = 1.0f;
-	p1.radius = 0.5f; // Set radius for the particle
-	physicsWorld.AddParticle(&p1);
-    RenderParticle rp1 = RenderParticle(&p1, &sphereObject, Physics::MyVector(1.0f, 0.0f, 0.0f));
-	rp1.Scale = Physics::MyVector(p1.radius, p1.radius, p1.radius);
-    renderParticles.push_back(&rp1);
-    
-    Physics::P6Particle p2 = Physics::P6Particle();
-	p2.position = Physics::MyVector(-2.0f, 0, 0);
-	p2.mass = 1.0f;
-	p2.radius = 0.5f; // Set radius for the particle
-	physicsWorld.AddParticle(&p2);
-	RenderParticle rp2 = RenderParticle(&p2, &sphereObject2, Physics::MyVector(0.0f, 0.0f, 1.0f));
-	rp2.Scale = Physics::MyVector(p2.radius, p2.radius, p2.radius);
-	renderParticles.push_back(&rp2);
+    float startX = -2 * particleGap;
+    Physics::P6Particle p1, p2, p3, p4, p5;
 
-    Physics::P6Particle p3 = Physics::P6Particle();
-    p3.position = Physics::MyVector(0.0f, 0, 0);
-    p3.mass = 1.0f;
-    p3.radius = 0.5f; // Set radius for the particle
+    p1.position = Physics::MyVector(startX + 0 * particleGap, 0, 0);
+    p2.position = Physics::MyVector(startX + 1 * particleGap, 0, 0);
+    p3.position = Physics::MyVector(startX + 2 * particleGap, 0, 0);
+    p4.position = Physics::MyVector(startX + 3 * particleGap, 0, 0);
+    p5.position = Physics::MyVector(startX + 4 * particleGap, 0, 0);
+
+    p1.mass = p2.mass = p3.mass = p4.mass = p5.mass = 1.0f;
+    p1.radius = p2.radius = p3.radius = p4.radius = p5.radius = particleRadius;
+
+    physicsWorld.AddParticle(&p1);
+    physicsWorld.AddParticle(&p2);
     physicsWorld.AddParticle(&p3);
-    RenderParticle rp3 = RenderParticle(&p3, &sphereObject3, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    physicsWorld.AddParticle(&p4);
+    physicsWorld.AddParticle(&p5);
+
+    RenderParticle rp1(&p1, &sphereObject, Physics::MyVector(1.0f, 0.0f, 0.0f));
+    rp1.Scale = Physics::MyVector(p1.radius, p1.radius, p1.radius);
+    renderParticles.push_back(&rp1);
+
+    RenderParticle rp2(&p2, &sphereObject2, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    rp2.Scale = Physics::MyVector(p2.radius, p2.radius, p2.radius);
+    renderParticles.push_back(&rp2);
+
+    RenderParticle rp3(&p3, &sphereObject3, Physics::MyVector(0.0f, 0.0f, 1.0f));
     rp3.Scale = Physics::MyVector(p3.radius, p3.radius, p3.radius);
     renderParticles.push_back(&rp3);
 
-    Physics::P6Particle p4 = Physics::P6Particle();
-    p4.position = Physics::MyVector(2, 0, 0);
-    p4.mass = 1.0f;
-    p4.radius = 0.5f; // Set radius for the particle
-    physicsWorld.AddParticle(&p4);
-    RenderParticle rp4 = RenderParticle(&p4, &sphereObject4, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    RenderParticle rp4(&p4, &sphereObject4, Physics::MyVector(0.0f, 0.0f, 1.0f));
     rp4.Scale = Physics::MyVector(p4.radius, p4.radius, p4.radius);
     renderParticles.push_back(&rp4);
 
-    Physics::P6Particle p5 = Physics::P6Particle();
-    p5.position = Physics::MyVector(4, 0, 0);
-    p5.mass = 1.0f;
-    p5.radius = 0.5f; // Set radius for the particle
-    physicsWorld.AddParticle(&p5);
-    RenderParticle rp5 = RenderParticle(&p5, &sphereObject5, Physics::MyVector(0.0f, 0.0f, 1.0f));
+    RenderParticle rp5(&p5, &sphereObject5, Physics::MyVector(0.0f, 0.0f, 1.0f));
     rp5.Scale = Physics::MyVector(p5.radius, p5.radius, p5.radius);
     renderParticles.push_back(&rp5);
 
-
-    //////////CHAIN//////////
-    Physics::Chain aChain = Physics::Chain(p1.position, 5.0f, 6.0f);
+    // --- CHAIN SETUP USING USER INPUT ---
+    Physics::Chain aChain(p1.position, cableLen, cableLen + 1.0f);
     physicsWorld.forceRegistry.Add(&p1, &aChain);
 
-    Physics::Chain aChain2 = Physics::Chain(p2.position, 5.0f, 6.0f);
+    Physics::Chain aChain2(p2.position, cableLen, cableLen + 1.0f);
     physicsWorld.forceRegistry.Add(&p2, &aChain2);
 
-    Physics::Chain aChain3 = Physics::Chain(p3.position, 5.0f, 6.0f);
+    Physics::Chain aChain3(p3.position, cableLen, cableLen + 1.0f);
     physicsWorld.forceRegistry.Add(&p3, &aChain3);
 
-    Physics::Chain aChain4 = Physics::Chain(p4.position, 5.0f, 6.0f);
+    Physics::Chain aChain4(p4.position, cableLen, cableLen + 1.0f);
     physicsWorld.forceRegistry.Add(&p4, &aChain4);
 
-    Physics::Chain aChain5 = Physics::Chain(p5.position, 5.0f, 6.0f);
+    Physics::Chain aChain5(p5.position, cableLen, cableLen + 1.0f);
     physicsWorld.forceRegistry.Add(&p5, &aChain5);
-    //////////CHAIN//////////
+    // --- GRAVITY SETUP USING USER INPUT ---
+    Physics::MyVector gravity(0.0f, gravityStrength, 0.0f);
+    // If you have a gravity force generator, register it here.
+    // Otherwise, add gravity in the update loop or as a force to each particle:
+    p1.AddForce(gravity * p1.mass);
+    p2.AddForce(gravity * p2.mass);
+    p3.AddForce(gravity * p3.mass);
+    p4.AddForce(gravity * p4.mass);
+    p5.AddForce(gravity * p5.mass);
 
    
 
