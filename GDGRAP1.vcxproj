@@ -141,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Physics\Bungee.cpp" />
-    <ClCompile Include="Physics\Chain.cpp" />
+    <ClCompile Include="Physics\Cable.cpp" />
     <ClCompile Include="Physics\ParticleLink.cpp" />
     <ClCompile Include="Physics\ParticleSpring.cpp" />
     <ClCompile Include="Physics\AnchoredSpring.cpp" />
@@ -162,7 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Physics\Bungee.h" />
-    <ClInclude Include="Physics\Chain.h" />
+    <ClInclude Include="Physics\Cable.h" />
     <ClInclude Include="Physics\ParticleLink.h" />
     <ClInclude Include="Physics\ParticleSpring.h" />
     <ClInclude Include="Physics\AnchoredSpring.h" />

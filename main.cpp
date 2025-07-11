@@ -22,7 +22,7 @@
 #include "Physics/AnchoredSpring.h"
 #include "Physics/Rod.h"    
 #include "Physics/Bungee.h"
-#include "Physics/Chain.h"
+#include "Physics/Cable.h"
 #include "Physics/ParticleSpring.h"
 
 
@@ -42,62 +42,67 @@ std::unordered_map<int, bool> keyStates;
 // Value for tracking object spawn timer
 double lastSpawn = 0.0;
 
-// Values for camera position and rotation
-float x_cam = 0;
-float y_cam = 0;
-float z_cam = 0;
-
-float yaw = 270;
+float yaw = 90;
 float pitch = 0;
 
 float scaleVal = 1.0f;
 
+bool spacePressed = false;
+
+// Switch between camera modes
+bool usePerspective = false;
+
+// Prevent camera toggling on key hold
+bool changeCamPressed = false;
+
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
-/*void Key_Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void Key_Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         keyStates[key] = true;
     }
+
+    if (key == GLFW_KEY_1 && usePerspective)
+    {
+        usePerspective = false;
+        changeCamPressed = true;
+    }
+    if (key == GLFW_KEY_2 && !usePerspective)
+    {
+        usePerspective = true;
+        changeCamPressed = true;
+    }
+
     else if (action == GLFW_RELEASE) {
         keyStates[key] = false;
     }
-}*/
+}
 
-/*void ProcessInput() {
-    double currTime = glfwGetTime();
+// Set a fixed radius for the orbit
+float camRadius = 20.0f;
 
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front = glm::normalize(front);
+void ProcessInput() {
 
-    glm::vec3 right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));
+    // Only update pitch / yaw for orbiting
+    if (keyStates[GLFW_KEY_W]) pitch += camLookSpeed;
+    if (keyStates[GLFW_KEY_S]) pitch -= camLookSpeed;
+    if (keyStates[GLFW_KEY_A]) yaw += camLookSpeed;
+    if (keyStates[GLFW_KEY_D]) yaw -= camLookSpeed;
 
-    if (keyStates[GLFW_KEY_W]) {
-        x_cam += front.x * camSpeed;
-        y_cam += front.y * camSpeed;
-        z_cam += front.z * camSpeed;
-    };
+    // Clamp pitch to avoid flipping
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
 
-    if (keyStates[GLFW_KEY_S]) {
-        x_cam -= front.x * camSpeed;
-        y_cam -= front.y * camSpeed;
-        z_cam -= front.z * camSpeed;
-    };
-
-    if (keyStates[GLFW_KEY_A]) {
-        x_cam -= right.x * camSpeed;
-        y_cam -= front.y * camSpeed;
-        z_cam -= right.z * camSpeed;
-    };
-
-    if (keyStates[GLFW_KEY_D]) {
-        x_cam += right.x * camSpeed;
-        y_cam += front.y * camSpeed;
-        z_cam += right.z * camSpeed;
-    };
+    if (keyStates[GLFW_KEY_SPACE]) {
+        if (!spacePressed) {
+            spacePressed = true;
+            std::cout << "Space key pressed!" << std::endl;
+        }
+    }
+    else {
+        spacePressed = false;
+    }
 
     // Moves camera pitch and yaw based on arrow inputs (Look up and down)
     if (keyStates[GLFW_KEY_UP]) pitch += camLookSpeed;
@@ -105,7 +110,7 @@ float scaleVal = 1.0f;
 
     if (keyStates[GLFW_KEY_LEFT]) yaw -= camLookSpeed;
     if (keyStates[GLFW_KEY_RIGHT]) yaw += camLookSpeed;
-} */
+}
 
 void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color) {
     glUseProgram(0);
@@ -133,7 +138,9 @@ int main(void) {
     float particleGap = 0.0f;
     float particleRadius = 0.0f;
     float gravityStrength = 0.0f;
-    float applyForce = 0.0f;
+    float applyForceX = 0.0f;
+    float applyForceY = 0.0f;
+    float applyForceZ = 0.0f;
 
     std::cout << "Enter Cable Length: ";
     std::cin >> cableLen;
@@ -143,8 +150,10 @@ int main(void) {
     std::cin >> particleRadius;
     std::cout << "Enter Gravity Strength (Y-axis, negative for downward): ";
     std::cin >> gravityStrength;
-    std::cout << "Enter Force to Apply to Leftmost Particle: ";
-    std::cin >> applyForce;
+    std::cout << "Apply Force";
+    std::cout << std::endl << "X: "; std::cin >> applyForceX;
+    std::cout << "Y: "; std::cin >> applyForceY;
+    std::cout << "Z: "; std::cin >> applyForceZ;
 
     GLFWwindow* window;
 
@@ -166,7 +175,7 @@ int main(void) {
     gladLoadGL();
 
     // Input handling for program
-    //glfwSetKeyCallback(window, Key_Callback);
+    glfwSetKeyCallback(window, Key_Callback);
 
     // Load vertex shader
     std::fstream vertSrc("Shaders/sample.vert");
@@ -198,7 +207,7 @@ int main(void) {
     glAttachShader(shaderProg, fragShader);
     glLinkProgram(shaderProg);
 
-    OrthographicCamera orthoCamera(
+    OrthographicCamera orthoCam(
         glm::vec3(0.0f, 0.0f, 0.0f), // Camera position
         glm::vec3(0.0f, 0.0f, 0.0f),      // Front direction
         glm::vec3(0.0f, 1.0f, 0.0f),      // Up direction
@@ -208,7 +217,18 @@ int main(void) {
         10.0f                             // Orthographic size
     );
 
-    glm::mat4 projectionMatrix = orthoCamera.GetProjectionMatrix(windowWidth / windowHeight);
+    glm::mat4 projectionMatrix = orthoCam.GetProjectionMatrix(windowWidth / windowHeight);
+
+    PerspectiveCamera perspectiveCam(
+        glm::vec3(0.0f, 0.0f, 0.0f), // Position
+        glm::vec3(0.0f, 0.0f, 0.0f), // Front dir
+        glm::vec3(0.0f, 1.0f, 0.0f), // Up dir
+        270.0f, // Yaw
+        0.0f, // Pitch
+        15.0f, // Distance
+        70.0f // FOV
+    );
+
 
     glEnable(GL_DEPTH_TEST);
 
@@ -307,21 +327,21 @@ int main(void) {
     rp5.Scale = Physics::MyVector(p5.radius, p5.radius, p5.radius);
     renderParticles.push_back(&rp5);
 
-    // --- CHAIN SETUP USING USER INPUT ---
-    Physics::Chain aChain(p1.position, cableLen, cableLen + 1.0f);
-    physicsWorld.forceRegistry.Add(&p1, &aChain);
+    // --- CABLE SETUP USING USER INPUT ---
+    Physics::Cable aCable(p1.position, cableLen, cableLen + 1.0f);
+    physicsWorld.forceRegistry.Add(&p1, &aCable);
 
-    Physics::Chain aChain2(p2.position, cableLen, cableLen + 1.0f);
-    physicsWorld.forceRegistry.Add(&p2, &aChain2);
+    Physics::Cable aCable2(p2.position, cableLen, cableLen + 1.0f);
+    physicsWorld.forceRegistry.Add(&p2, &aCable2);
 
-    Physics::Chain aChain3(p3.position, cableLen, cableLen + 1.0f);
-    physicsWorld.forceRegistry.Add(&p3, &aChain3);
+    Physics::Cable aCable3(p3.position, cableLen, cableLen + 1.0f);
+    physicsWorld.forceRegistry.Add(&p3, &aCable3);
 
-    Physics::Chain aChain4(p4.position, cableLen, cableLen + 1.0f);
-    physicsWorld.forceRegistry.Add(&p4, &aChain4);
+    Physics::Cable aCable4(p4.position, cableLen, cableLen + 1.0f);
+    physicsWorld.forceRegistry.Add(&p4, &aCable4);
 
-    Physics::Chain aChain5(p5.position, cableLen, cableLen + 1.0f);
-    physicsWorld.forceRegistry.Add(&p5, &aChain5);
+    Physics::Cable aCable5(p5.position, cableLen, cableLen + 1.0f);
+    physicsWorld.forceRegistry.Add(&p5, &aCable5);
     // --- GRAVITY SETUP USING USER INPUT ---
     Physics::MyVector gravity(0.0f, gravityStrength, 0.0f);
     // If you have a gravity force generator, register it here.
@@ -379,7 +399,6 @@ int main(void) {
     float elapsedTime = 0.0f;
     bool forceApplied = false;
 
-	std::cout << "Wait 5 secs to see chain movement using force" << std::endl;
     while (!glfwWindowShouldClose(window)) {
 
 		curr_time = clock::now();
@@ -402,16 +421,18 @@ int main(void) {
 
         }
 
-        // Apply force to the chain after 5 seconds (to simulate chain movement)
-        if (!forceApplied && elapsedTime >= 5.0f) {
-            p1.AddForce(Physics::MyVector(Physics::MyVector(-0.7f, 0.0f, 0.0f) * 1000));
+        if (!forceApplied && spacePressed) {
+            p1.AddForce(Physics::MyVector(Physics::MyVector(applyForceX, applyForceY, applyForceZ) * 1000));
             forceApplied = true;
-            std::cout << "Force applied to chain!" << std::endl;
+            std::cout << "Force applied to cable!" << std::endl;
         }
 
         //std::cout << "Normal Update" << "\n";
 
-        //ProcessInput(); // Key inputs
+        ProcessInput(); // Key inputs
+
+        float aspect = windowWidth / windowHeight;
+        projectionMatrix = usePerspective ? perspectiveCam.GetProjectionMatrix(aspect) : orthoCam.GetProjectionMatrix(aspect);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -435,17 +456,21 @@ int main(void) {
             sphereObject4.draw();
         }*/
 
-        // Calculates the camera's position and front vector
-        glm::vec3 cameraPos = glm::vec3(0 + x_cam, 0 + y_cam, 0 + z_cam);
-        glm::vec3 front;
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(pitch));
-        front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front = glm::normalize(front);
+        // Calculate camera position based on spherical coordinates (orbit logic)
+        float yawRad = glm::radians(yaw);
+        float pitchRad = glm::radians(pitch);
 
-        // Calculates the view matrix
-        glm::vec3 cameraCenter = cameraPos + front;
-        glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraCenter, glm::vec3(0, 1, 0));
+        float x = camRadius * cos(pitchRad) * cos(yawRad);
+        float y = camRadius * sin(pitchRad);
+        float z = camRadius * cos(pitchRad) * sin(yawRad);
+
+        glm::vec3 camPos(x, y, z);
+        glm::vec3 camTarget(0.0f, 0.0f, 0.0f); // Always look at the center
+        glm::vec3 camUp(0.0f, 1.0f, 0.0f);
+
+        // Use orbit logic for both camera modes
+        glm::mat4 viewMatrix = glm::lookAt(camPos, camTarget, camUp);
+
 
         // Pass the view matrix to the shader
         unsigned int viewLoc = glGetUniformLocation(shaderProg, "view");
@@ -460,14 +485,14 @@ int main(void) {
             (*i)->Draw();
         }
 
-        // draw the bungee and chain lines
+        // draw the bungee and cable lines
         {
             glm::vec3 lineColor(1.0f, 1.0f, 1.0f);
-            DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aChain.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aChain2.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject3.position * 0.1f, ToGlmVec3(aChain3.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject4.position * 0.1f, ToGlmVec3(aChain4.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject5.position * 0.1f, ToGlmVec3(aChain5.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aCable.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aCable2.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject3.position * 0.1f, ToGlmVec3(aCable3.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject4.position * 0.1f, ToGlmVec3(aCable4.anchorPoint) * 0.1f, lineColor);
+            DrawLine(sphereObject5.position * 0.1f, ToGlmVec3(aCable5.anchorPoint) * 0.1f, lineColor);
         }
 
 

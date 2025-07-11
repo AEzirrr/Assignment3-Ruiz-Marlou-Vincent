@@ -69,7 +69,7 @@
     <ClCompile Include="Physics\Bungee.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\Chain.cpp">
+    <ClCompile Include="Physics\Cable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,7 +131,7 @@
     <ClInclude Include="Physics\Bungee.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\Chain.h">
+    <ClInclude Include="Physics\Cable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

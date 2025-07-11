@@ -1,8 +1,8 @@
-#include "Chain.h"
+#include "Cable.h"
 
 namespace Physics
 {
-    void Chain::UpdateForce(P6Particle* particle, float time) {
+    void Cable::UpdateForce(P6Particle* particle, float time) {
         MyVector direction = particle->position - anchorPoint;
         float distance = direction.Magnitude();
 
