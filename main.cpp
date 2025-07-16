@@ -81,6 +81,7 @@ void Key_Callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 // Set a fixed radius for the orbit
 float camRadius = 20.0f;
+float pCamRadius = 180.0f;
 
 void ProcessInput() {
 
@@ -112,19 +113,9 @@ void ProcessInput() {
     if (keyStates[GLFW_KEY_RIGHT]) yaw += camLookSpeed;
 }
 
-void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color) {
-    glUseProgram(0);
-    glColor3f(color.x, color.y, color.z);
-    glBegin(GL_LINES);
-    glVertex3f(start.x, start.y, start.z);
-    glVertex3f(end.x, end.y, end.z);
-    glEnd();
-}
-
 glm::vec3 ToGlmVec3(const Physics::MyVector& v) {
     return glm::vec3(v.x, v.y, v.z);
 }
-
 
 bool AtCenter(const Physics::P6Particle& particle, float epsilon = 0.1f) {
     const auto& pos = particle.position;
@@ -161,11 +152,11 @@ int main(void) {
         return -1;
 
     // Window values
-    float windowWidth = 640;
-    float windowHeight = 640;
+    float windowWidth = 800;
+    float windowHeight = 800;
 
     // Window creation
-    window = glfwCreateWindow(windowWidth, windowHeight, "Assignment3 Marlou Vincent Ruiz", NULL, NULL);
+    window = glfwCreateWindow(windowWidth, windowHeight, "Group: # - Phase 2", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -208,27 +199,26 @@ int main(void) {
     glLinkProgram(shaderProg);
 
     OrthographicCamera orthoCam(
-        glm::vec3(0.0f, 0.0f, 0.0f), // Camera position
+        glm::vec3(0.0f, -10.0f, 0.0f), // Camera position
         glm::vec3(0.0f, 0.0f, 0.0f),      // Front direction
         glm::vec3(0.0f, 1.0f, 0.0f),      // Up direction
         0.0f,                             // Yaw
         0.0f,                             // Pitch
         50.0f,                            // Distance from target
-        10.0f                             // Orthographic size
+        400.0f                             // Orthographic size
     );
 
-    glm::mat4 projectionMatrix = orthoCam.GetProjectionMatrix(windowWidth / windowHeight);
+    glm::mat4 projectionMatrix = orthoCam.GetProjectionMatrix(800.0f, 800.0f);
 
     PerspectiveCamera perspectiveCam(
-        glm::vec3(0.0f, 0.0f, 0.0f), // Position
+        glm::vec3(0.0f, 0.0f, 3000.0f), // Position
         glm::vec3(0.0f, 0.0f, 0.0f), // Front dir
         glm::vec3(0.0f, 1.0f, 0.0f), // Up dir
         270.0f, // Yaw
         0.0f, // Pitch
-        15.0f, // Distance
-        70.0f // FOV
+        3000.0f, // Distance
+        60.0f // FOV
     );
-
 
     glEnable(GL_DEPTH_TEST);
 
@@ -289,7 +279,6 @@ int main(void) {
         shaderProg
     );
 
-
 	std::list<RenderParticle*> renderParticles;
     // --- PARTICLE SETUP USING USER INPUT ---
     //Add the particles
@@ -298,14 +287,15 @@ int main(void) {
     float startX = -2 * particleGap;
     Physics::P6Particle p1, p2, p3, p4, p5;
 
-    p1.position = Physics::MyVector(startX + 0 * particleGap, 0, 0);
-    p2.position = Physics::MyVector(startX + 1 * particleGap, 0, 0);
-    p3.position = Physics::MyVector(startX + 2 * particleGap, 0, 0);
-    p4.position = Physics::MyVector(startX + 3 * particleGap, 0, 0);
-    p5.position = Physics::MyVector(startX + 4 * particleGap, 0, 0);
+    p1.position = Physics::MyVector(startX + 0 * particleGap, 250, 0);
+    p2.position = Physics::MyVector(startX + 1 * particleGap, 250, 0);
+    p3.position = Physics::MyVector(startX + 2 * particleGap, 250, 0);
+    p4.position = Physics::MyVector(startX + 3 * particleGap, 250, 0);
+    p5.position = Physics::MyVector(startX + 4 * particleGap, 250, 0);
 
-    p1.mass = p2.mass = p3.mass = p4.mass = p5.mass = 1.0f;
+    p1.mass = p2.mass = p3.mass = p4.mass = p5.mass = 50.0f;
     p1.radius = p2.radius = p3.radius = p4.radius = p5.radius = particleRadius;
+    p1.restitution = p2.restitution = p3.restitution = p4.restitution = p5.restitution = 0.9f;
 
     physicsWorld.AddParticle(&p1);
     physicsWorld.AddParticle(&p2);
@@ -350,49 +340,12 @@ int main(void) {
     physicsWorld.forceRegistry.Add(&p5, &aCable5);
     // --- GRAVITY SETUP USING USER INPUT ---
     Physics::MyVector gravity(0.0f, gravityStrength, 0.0f);
-    // If you have a gravity force generator, register it here.
-    // Otherwise, add gravity in the update loop or as a force to each particle:
+
     p1.AddForce(gravity * p1.mass);
     p2.AddForce(gravity * p2.mass);
     p3.AddForce(gravity * p3.mass);
     p4.AddForce(gravity * p4.mass);
     p5.AddForce(gravity * p5.mass);
-
-   
-
-    //////////ANCHORED SPRING TEST//////////
-    /*Physics::AnchoredSpring aSpring = Physics::AnchoredSpring(Physics::MyVector(0, 0, 0), 5.0f, 0.5f);
-    physicsWorld.forceRegistry.Add(&p1, &aSpring);
-
-    p1.AddForce(Physics::MyVector(0.6f, 0.3f, 0.0f) * 1000); // Add an initial force to the particle*/
-
-    /*//PARTICLE SPRING TEST
-	Physics::ParticleSpring pSpring = Physics::ParticleSpring(&p1, 5.0f, 1.0f);
-	physicsWorld.forceRegistry.Add(&p2, &pSpring);
-
-    Physics::ParticleSpring pSpring2 = Physics::ParticleSpring(&p2, 5.0f, 1.0f);
-    physicsWorld.forceRegistry.Add(&p1, &pSpring2);
-
-	p1.AddForce(Physics::MyVector(0.6f, 0.3f, 0.0f) * 1000); // Add an initial force to the particle*/
-    //////////ANCHORED SPRING TEST//////////
-	
-
-	/*Physics::ParticleContact contact = Physics::ParticleContact();
-	contact.particles[0] = &p1;
-	contact.particles[1] = &p2;
-
-	contact.contactNormal = p1.position - p2.position;
-	contact.contactNormal = contact.contactNormal.Normalize(); // Normalize the contact normal vector
-	contact.restitution = 0.0f; // Set restitution coefficient*/
-
-
-	//p1.velocity = Physics::MyVector(0.2, 0, 0);
-    //p2.velocity = Physics::MyVector(-0.1, 0, 0);
-
-    //Physics::MyVector dir = p1.position - p2.position;
-	//dir.Normalize();
-
-	//physicsWorld.addContact(&p1, &p2, 1.0f, dir); // Add the contact to the physics world
 
 	//Initializes the clock and variables
 	using clock = std::chrono::high_resolution_clock;
@@ -442,26 +395,6 @@ int main(void) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*if (!particle.IsDestroyed()) {
-            sphereObject.position = (glm::vec3)particle.position;
-            sphereObject.draw();
-		}
-
-        if (!particle2.IsDestroyed()) {
-            sphereObject2.position = (glm::vec3)particle2.position;
-            sphereObject2.draw();
-        }
-
-        if (!particle3.IsDestroyed()) {
-            sphereObject3.position = (glm::vec3)particle3.position;
-            sphereObject3.draw();
-        }
-
-        if (!particle4.IsDestroyed()) {
-            sphereObject4.position = (glm::vec3)particle4.position;
-            sphereObject4.draw();
-        }*/
-
         // Calculate camera position based on spherical coordinates (orbit logic)
         float yawRad = glm::radians(yaw);
         float pitchRad = glm::radians(pitch);
@@ -477,6 +410,16 @@ int main(void) {
         // Use orbit logic for both camera modes
         glm::mat4 viewMatrix = glm::lookAt(camPos, camTarget, camUp);
 
+        if (usePerspective)
+        {
+            camRadius = 360.0f;
+            viewMatrix = glm::lookAt(camPos, camTarget, camUp);
+        }
+        else
+        {
+            camRadius = 20.0f;
+            viewMatrix = glm::lookAt(camPos, camTarget, camUp);
+        }
 
         // Pass the view matrix to the shader
         unsigned int viewLoc = glGetUniformLocation(shaderProg, "view");
@@ -496,18 +439,6 @@ int main(void) {
         line3.DrawLine(sphereObject3.position, ToGlmVec3(aCable3.anchorPoint));
         line4.DrawLine(sphereObject4.position, ToGlmVec3(aCable4.anchorPoint));
         line5.DrawLine(sphereObject5.position, ToGlmVec3(aCable5.anchorPoint));
-
-
-        // draw the bungee and cable lines
-        {
-            //glm::vec3 lineColor(1.0f, 1.0f, 1.0f);
-            //DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aCable.anchorPoint) * 0.1f, lineColor);
-            //DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aCable2.anchorPoint) * 0.1f, lineColor);
-            //DrawLine(sphereObject3.position * 0.1f, ToGlmVec3(aCable3.anchorPoint) * 0.1f, lineColor);
-            //DrawLine(sphereObject4.position * 0.1f, ToGlmVec3(aCable4.anchorPoint) * 0.1f, lineColor);
-            //DrawLine(sphereObject5.position * 0.1f, ToGlmVec3(aCable5.anchorPoint) * 0.1f, lineColor);
-        }
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();

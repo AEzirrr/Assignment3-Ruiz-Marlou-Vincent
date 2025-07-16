@@ -5,7 +5,7 @@
 
 // Camera class
 class MyCamera {
-protected:
+public:
     glm::vec3 front; 
     glm::vec3 up;    
     float yaw;       
@@ -25,6 +25,7 @@ public:
 
     // Pure virtual function to get the projection matrix
     virtual glm::mat4 GetProjectionMatrix(float aspect) const = 0;
+    virtual glm::mat4 GetProjectionMatrix(float width, float height) const = 0;
 
     // Function to get the view matrix
     glm::mat4 GetViewMatrix(const glm::vec3& target) const {
@@ -69,14 +70,19 @@ private:
 
 public:
     // Constructor
-    explicit PerspectiveCamera(const glm::vec3& pos, const glm::vec3& frontDir, const glm::vec3& upDir, float y, float p, float dist, float fovAngle, float nearP = 0.1f, float farP = 100.0f)
+    explicit PerspectiveCamera(const glm::vec3& pos, const glm::vec3& frontDir, const glm::vec3& upDir, float y, float p, float dist, float fovAngle, float nearP = 0.1f, float farP = 2000.0f)
         : MyCamera(pos, frontDir, upDir, y, p, dist), fov(fovAngle), nearPlane(nearP), farPlane(farP) {
     }
 
-    // Function to get the projection matrix
+     //Function to get the projection matrix
     glm::mat4 GetProjectionMatrix(float aspect) const override {
         return glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane);
     }
+
+    glm::mat4 GetProjectionMatrix(float width, float height) const override {
+        return glm::perspective(glm::radians(fov), width/height, nearPlane, farPlane);
+    }
+
 };
 
 // Orthographic camera class
@@ -88,12 +94,17 @@ private:
 
 public:
     // Constructor
-    explicit OrthographicCamera(const glm::vec3& pos, const glm::vec3& frontDir, const glm::vec3& upDir, float y, float p, float dist, float size, float nearP = -50.0f, float farP = 50.0f)
+    explicit OrthographicCamera(const glm::vec3& pos, const glm::vec3& frontDir, const glm::vec3& upDir, float y, float p, float dist, float size, float nearP = -400.0f, float farP = 400.0f)
         : MyCamera(pos, frontDir, upDir, y, p, dist), orthoSize(size), nearPlane(nearP), farPlane(farP) {
     }
 
-    // Function to get the projection matrix
+     //Function to get the projection matrix
     glm::mat4 GetProjectionMatrix(float aspect) const override {
         return glm::ortho(-orthoSize * aspect, orthoSize * aspect, -orthoSize, orthoSize, nearPlane, farPlane);
     }
+
+    glm::mat4 GetProjectionMatrix(float width, float height) const {
+        return glm::ortho(0.0f, width, 0.0f, height, nearPlane, farPlane);
+    }
+
 };
