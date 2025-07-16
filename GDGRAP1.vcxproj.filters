@@ -72,6 +72,9 @@
     <ClCompile Include="Physics\Cable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LineRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tiny_obj_loader.h">
@@ -132,6 +135,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Physics\Cable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LineRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

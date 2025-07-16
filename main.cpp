@@ -9,7 +9,7 @@
 #include <sstream>
 #include <fstream>
 
-
+#include "LineRenderer.h"
 #include "model.h"
 #include "camera.h"
 #include "Physics/MyVector.h"
@@ -232,6 +232,12 @@ int main(void) {
 
     glEnable(GL_DEPTH_TEST);
 
+    // Initialize Lines
+    LineRenderer line1(shaderProg);
+    LineRenderer line2(shaderProg);
+    LineRenderer line3(shaderProg);
+    LineRenderer line4(shaderProg);
+    LineRenderer line5(shaderProg);
 
     // Load sphere
     Model3D sphereObject(
@@ -485,14 +491,21 @@ int main(void) {
             (*i)->Draw();
         }
 
+        line1.DrawLine(sphereObject.position, ToGlmVec3(aCable.anchorPoint));
+        line2.DrawLine(sphereObject2.position, ToGlmVec3(aCable2.anchorPoint));
+        line3.DrawLine(sphereObject3.position, ToGlmVec3(aCable3.anchorPoint));
+        line4.DrawLine(sphereObject4.position, ToGlmVec3(aCable4.anchorPoint));
+        line5.DrawLine(sphereObject5.position, ToGlmVec3(aCable5.anchorPoint));
+
+
         // draw the bungee and cable lines
         {
-            glm::vec3 lineColor(1.0f, 1.0f, 1.0f);
-            DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aCable.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aCable2.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject3.position * 0.1f, ToGlmVec3(aCable3.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject4.position * 0.1f, ToGlmVec3(aCable4.anchorPoint) * 0.1f, lineColor);
-            DrawLine(sphereObject5.position * 0.1f, ToGlmVec3(aCable5.anchorPoint) * 0.1f, lineColor);
+            //glm::vec3 lineColor(1.0f, 1.0f, 1.0f);
+            //DrawLine(sphereObject.position * 0.1f, ToGlmVec3(aCable.anchorPoint) * 0.1f, lineColor);
+            //DrawLine(sphereObject2.position * 0.1f, ToGlmVec3(aCable2.anchorPoint) * 0.1f, lineColor);
+            //DrawLine(sphereObject3.position * 0.1f, ToGlmVec3(aCable3.anchorPoint) * 0.1f, lineColor);
+            //DrawLine(sphereObject4.position * 0.1f, ToGlmVec3(aCable4.anchorPoint) * 0.1f, lineColor);
+            //DrawLine(sphereObject5.position * 0.1f, ToGlmVec3(aCable5.anchorPoint) * 0.1f, lineColor);
         }
 
 

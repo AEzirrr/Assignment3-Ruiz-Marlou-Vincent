@@ -107,7 +107,9 @@ void Model3D::draw() {
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(VAO);
 
+    glUniform1i(glGetUniformLocation(shader, "isLine"), false);
     unsigned int transformLoc = glGetUniformLocation(shader, "transform");
+
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(getTransform()));
 
     int colorLoc = glGetUniformLocation(shader, "modelColor");
