@@ -341,11 +341,7 @@ int main(void) {
     // --- GRAVITY SETUP USING USER INPUT ---
     Physics::MyVector gravity(0.0f, gravityStrength, 0.0f);
 
-    p1.AddForce(gravity * p1.mass);
-    p2.AddForce(gravity * p2.mass);
-    p3.AddForce(gravity * p3.mass);
-    p4.AddForce(gravity * p4.mass);
-    p5.AddForce(gravity * p5.mass);
+    physicsWorld.gravity = gravity;
 
 	//Initializes the clock and variables
 	using clock = std::chrono::high_resolution_clock;
@@ -381,7 +377,8 @@ int main(void) {
         }
 
         if (!forceApplied && spacePressed) {
-            p1.AddForce(Physics::MyVector(Physics::MyVector(applyForceX, applyForceY, applyForceZ) * 1000));
+            //p1.AddForce(Physics::MyVector(Physics::MyVector(applyForceX, applyForceY, applyForceZ) * 1000));
+            p1.AddForce(Physics::MyVector(Physics::MyVector(applyForceX, applyForceY, applyForceZ)));
             forceApplied = true;
             std::cout << "Force applied to cable!" << std::endl;
         }
