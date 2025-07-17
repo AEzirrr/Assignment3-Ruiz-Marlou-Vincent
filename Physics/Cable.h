@@ -6,6 +6,9 @@
 
 #include "P6Particle.h"
 
+
+//Cable class is very much the same as the AnchoredSpring class, 
+//but it is used to simulate a cable that is anchored at a point in space. It can move freely but does not stretch beyond its rest length.
 namespace Physics {
 	class Cable : public ForceGenerator {
 
