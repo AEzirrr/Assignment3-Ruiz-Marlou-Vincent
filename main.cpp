@@ -156,7 +156,7 @@ int main(void) {
     float windowHeight = 800;
 
     // Window creation
-    window = glfwCreateWindow(windowWidth, windowHeight, "Group: # - Phase 2", NULL, NULL);
+    window = glfwCreateWindow(windowWidth, windowHeight, "Group: 1 - Phase 2: Mass Aggregate", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -373,11 +373,9 @@ int main(void) {
 			//std::cout << "P6Update"<< "\n";
 
 			physicsWorld.Update((float)ms.count() / 1000.0f);  
-
         }
 
         if (!forceApplied && spacePressed) {
-            //p1.AddForce(Physics::MyVector(Physics::MyVector(applyForceX, applyForceY, applyForceZ) * 1000));
             p1.AddForce(Physics::MyVector(Physics::MyVector(applyForceX, applyForceY, applyForceZ)));
             forceApplied = true;
             std::cout << "Force applied to cable!" << std::endl;
