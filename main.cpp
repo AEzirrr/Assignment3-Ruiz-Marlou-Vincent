@@ -429,6 +429,7 @@ int main(void) {
             (*i)->Draw();
         }
 
+		// Draw the lines for each particle
         line1.DrawLine(sphereObject.position, ToGlmVec3(aCable.anchorPoint));
         line2.DrawLine(sphereObject2.position, ToGlmVec3(aCable2.anchorPoint));
         line3.DrawLine(sphereObject3.position, ToGlmVec3(aCable3.anchorPoint));
