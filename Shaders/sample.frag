@@ -13,8 +13,11 @@ uniform float specStr;
 uniform float specPhong;
 
 uniform vec3 modelColor;
+uniform vec3 color;
 
-out vec4 FragColor;
+uniform bool isLine;
+
+out vec4 FragColor; 
 
 in vec2 texCoord;
 in vec3 normCoord;
@@ -38,6 +41,8 @@ void main()
 
     vec3 specColor = spec* specStr * lightColor;
 
-
-    FragColor = vec4(modelColor, 1.0);
+    if (isLine)
+        FragColor = vec4(1.0, 1.0, 1.0, 1.0); // white line
+    else
+        FragColor = vec4(modelColor, 1.0);
 }

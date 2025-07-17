@@ -42,9 +42,9 @@ namespace Physics {
 
 		void Update(float time);
 
+		GravityForceGenerator gravity = GravityForceGenerator(MyVector(0, -9.8f, 0));
 	private:
 		void UpdateParticleList();
 
-		GravityForceGenerator gravity = GravityForceGenerator(MyVector(0, -9.8f, 0));
 	};
 }

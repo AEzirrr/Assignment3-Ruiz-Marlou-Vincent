@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LineRenderer.cpp" />
     <ClCompile Include="Physics\Bungee.cpp" />
     <ClCompile Include="Physics\Cable.cpp" />
     <ClCompile Include="Physics\ParticleLink.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Physics\Rod.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LineRenderer.h" />
     <ClInclude Include="Physics\Bungee.h" />
     <ClInclude Include="Physics\Cable.h" />
     <ClInclude Include="Physics\ParticleLink.h" />
